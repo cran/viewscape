@@ -72,7 +72,7 @@ test_viewpoint <- sf::read_sf(system.file("test_viewpoint.shp",
 # Compute viewshed
 output <- viewscape::compute_viewshed(dsm = test_dsm,
                                       viewpoints = test_viewpoint,
-                                      offset_viewpoint = 6)
+                                      offset_viewpoint = 6, r = 1600)
 
 # calculate metrics given the viewshed, canopy, and building footprints
 test_metrics <- viewscape::calculate_viewmetrics(output,

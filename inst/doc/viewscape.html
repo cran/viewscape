@@ -11,7 +11,7 @@
 
 <meta name="author" content="Xiaohao Yang" />
 
-<meta name="date" content="2023-12-18" />
+<meta name="date" content="2024-06-06" />
 
 <title>viewscape</title>
 
@@ -358,7 +358,7 @@ pre code {
 
 <h1 class="title toc-ignore">viewscape</h1>
 <h4 class="author">Xiaohao Yang</h4>
-<h4 class="date">2023-12-18</h4>
+<h4 class="date">2024-06-06</h4>
 
 </div>
 
@@ -386,15 +386,31 @@ test_viewpoint &lt;- sf::read_sf(system.file(&quot;test_viewpoint.shp&quot;,
 #Compute viewshed
 output &lt;- viewscape::compute_viewshed(dsm = test_dsm, 
                                       viewpoints = test_viewpoint, 
-                                      offset_viewpoint = 6)</code></pre>
+                                      offset_viewpoint = 6, 
+                                      r = 1600,
+                                      method = &#39;plane&#39;)</code></pre>
 <pre class="r"><code># overlap viewshed on DSM
 output_r &lt;- viewscape::visualize_viewshed(output, outputtype = &#39;raster&#39;)
 terra::plot(test_dsm, axes=FALSE, box=FALSE, legend = FALSE)
 terra::plot(output_r, add=TRUE, col = &quot;red&quot;, axes=FALSE, box=FALSE, legend = FALSE)
 terra::plot(test_viewpoint, add = TRUE, col = &quot;blue&quot;, axes=FALSE, box=FALSE, legend = FALSE)</code></pre>
 </div>
+<div id="subset-viewshed-using-by-specifying-the-field-of-view" class="section level3">
+<h3>1.2 Subset viewshed using by specifying the field of view</h3>
+<pre class="r"><code>sector &lt;- viewscape::fov_mask(output, c(40,160))
+terra::plot(test_dsm, axes=FALSE, box=FALSE, legend = FALSE)
+terra::plot(viewscape::visualize_viewshed(sector, outputtype = &#39;raster&#39;),
+            axes=FALSE, box=FALSE, legend = FALSE, add = TRUE, col = &quot;red&quot;)
+terra::plot(test_viewpoint, add = TRUE, col = &quot;blue&quot;, axes=FALSE, box=FALSE, legend = FALSE)</code></pre>
+</div>
+<div id="compute-visual-magnitude" class="section level3">
+<h3>1.3 Compute visual magnitude</h3>
+<pre class="r"><code>vm &lt;- viewscape::visual_magnitude(output,test_dsm)
+terra::plot(vm, axes=FALSE, box=FALSE)
+terra::plot(test_viewpoint, add = TRUE, col = &quot;blue&quot;, axes=FALSE, box=FALSE, legend = FALSE)</code></pre>
+</div>
 <div id="compute-the-viewshed-for-multiple-viewpoints" class="section level3">
-<h3>1.2 Compute the viewshed for multiple viewpoints</h3>
+<h3>1.4 Compute the viewshed for multiple viewpoints</h3>
 <pre class="r"><code>#Load in DSM
 test_dsm &lt;- terra::rast(system.file(&quot;test_dsm.tif&quot;, 
                                        package =&quot;viewscape&quot;))
@@ -453,38 +469,6 @@ test_metrics &lt;- viewscape::calculate_viewmetrics(output[[1]],
                                                  test_dtm, 
                                                  list(test_canopy, test_building))
 test_metrics</code></pre>
-<pre><code>## $Nump
-## [1] 47
-## 
-## $MSI
-## [1] 2.650869
-## 
-## $ED
-## [1] 1.104127
-## 
-## $PS
-## [1] 640.0387
-## 
-## $PD
-## [1] 0.007910045
-## 
-## $extent
-## [1] 63952
-## 
-## $depth
-## [1] 1019.851
-## 
-## $vdepth
-## [1] 268.5452
-## 
-## $horizontal
-## [1] 48372
-## 
-## $relief
-## [1] 0.6656973
-## 
-## $skyline
-## [1] 6.002534</code></pre>
 </div>
 <div id="calculate-land-usecover-diversity" class="section level3">
 <h3>2.2 Calculate land use/cover diversity</h3>
@@ -494,21 +478,11 @@ use/ cover within a viewshed to get the Shannon Diversity Index.</p>
 test_landuse &lt;- terra::rast(system.file(&quot;test_landuse.tif&quot;,
                                         package =&quot;viewscape&quot;))</code></pre>
 <pre class="r"><code># the Shannon Diversity Index (SDI)
-test_diversity &lt;- viewscape::calculate_diversity(output[[1]], 
+test_diversity &lt;- viewscape::calculate_diversity(output[[1]],
                                                  test_landuse,
                                                  proportion = TRUE)
 # SDI and The proportion of each type of land use
 test_diversity</code></pre>
-<pre><code>## $SDI
-## [1] 0.79
-## 
-## $Proportion
-##                 [,1]        [,2]        [,3]       [,4]        [,5]       [,6]
-## type       0.0000000 1.000000000 2.000000000 3.00000000 4.000000000 5.00000000
-## proportion 0.7970978 0.007005254 0.004378284 0.03952965 0.007067801 0.04503378
-##                   [,7]       [,8]         [,9]
-## type       6.000000000 7.00000000 8.0000000000
-## proportion 0.004128096 0.09563423 0.0001250938</code></pre>
 </div>
 <div id="calculate-a-single-feature" class="section level3">
 <h3>2.3 calculate a single feature</h3>
@@ -519,12 +493,11 @@ This function can be applied to</p>
 test_canopy &lt;- terra::rast(system.file(&quot;test_canopy.tif&quot;,
                                           package =&quot;viewscape&quot;))
 # calculate the percentage of canopy coverage  
-test_canopy_proportion &lt;- viewscape::calculate_feature(viewshed = output[[1]],
+test_canopy_proportion &lt;- viewscape::calculate_feature(viewshed = output[[1]], 
                                                        feature = test_canopy,
-                                                       type = 2, 
+                                                       type = 2,
                                                        exclude_value=0)
 test_canopy_proportion</code></pre>
-<pre><code>## [1] 0.2945334</code></pre>
 </div>
 </div>
 </div>
