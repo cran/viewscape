@@ -1,4 +1,4 @@
-1fcf1394bb9e62ce2cb96deafd3bd961 *DESCRIPTION
+9f96d5d4ae04b31d59d6ef58e9b83296 *DESCRIPTION
 df2e12938916dad04617b896b99e167e *NAMESPACE
 be5f7a85f61efe0d7318bc34d02a7b56 *R/Class-Viewshed.R
 87e9488b7f2ec9d2d14fbe94820741ea *R/RcppExports.R
@@ -45,7 +45,7 @@ af3c19374c4c6c1137525389f285dac8 *src/Makevars.win
 081812e0d2434f0409a335e95cb12de2 *src/VM.cpp
 9f688d16743d622c57fc0170a188e65e *src/get_depths.cpp
 85e66073216d08c8ae02b3ee6a6c0946 *src/sectorMask.cpp
-86758570e2eed803e1e99af3880265d4 *src/visibleLabel.cpp
+3f494aaa7c711ed2557df96d36282c8d *src/visibleLabel.cpp
 b204f7234b7e5ab840a94cd5715498bf *tests/testthat.R
 3df2208389229bc782ee7d13c60ac3cd *tests/testthat/test-calculate_diversity.R
 ec6c92859bdd354e3e85cc85545cce7b *tests/testthat/test-calculate_feature.R
