@@ -1,7 +1,7 @@
 Package: viewscape
 Type: Package
 Title: Viewscape Analysis
-Version: 2.0.1
+Version: 2.0.2
 Authors@R: c(person("Xiaohao", "Yang", role = c("aut", "cre", "cph"), email = "xiaohaoy@umich.edu"),
            person("Nathan", "Fox", role = c("aut")),
            person("Derek", "Van Berkel", role = c("aut")),
@@ -19,7 +19,7 @@ Depends: R (>= 4.2)
 License: GPL-3
 Encoding: UTF-8
 RoxygenNote: 7.3.1
-Language: en_GB
+Language: en-US
 Suggests: testthat (>= 3.0.0), knitr, rmarkdown
 Config/testthat/edition: 3
 VignetteBuilder: knitr, rmarkdown
@@ -28,11 +28,11 @@ Imports: Rcpp, rlang, methods, dplyr, sf, sp, terra, ForestTools (>=
         1.0.1), parallel, pbmcapply
 LinkingTo: Rcpp
 NeedsCompilation: yes
-Packaged: 2024-11-10 21:57:21 UTC; yangxiaohao
+Packaged: 2024-12-19 20:52:25 UTC; yangxiaohao
 Author: Xiaohao Yang [aut, cre, cph],
   Nathan Fox [aut],
   Derek Van Berkel [aut],
   Mark Lindquist [aut]
 Maintainer: Xiaohao Yang <xiaohaoy@umich.edu>
 Repository: CRAN
-Date/Publication: 2024-11-11 00:00:02 UTC
+Date/Publication: 2024-12-19 21:20:02 UTC
