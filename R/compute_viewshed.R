@@ -7,19 +7,19 @@
 #' @param dsm Raster, the digital surface model/digital elevation model
 #' @param viewpoints sf point(s) or vector including x,y coordinates of a viewpoint
 #' or a matrix including several viewpoints with x,y coordinates
-#' @param offset_viewpoint numeric, setting the height of the viewpoint.
-#' (default is 1.7 meters).
-#' @param offset_height numeric, setting the height of positions that a given
-#' viewpoint will look at. (defaut is 0)
-#' @param r Numeric (optional), setting the radius for viewshed analysis.
-#' (The default is 1000m/3281ft)
+#' @param offset_viewpoint numeric, observer height above the surface **in metres**
+#' (default is 1.7 m). Automatically converted to the CRS unit of the DSM.
+#' @param offset_height numeric, target height above the surface **in metres**
+#' (default is 0 m). Automatically converted to the CRS unit of the DSM.
+#' @param r Numeric (optional), analysis radius **in metres**
+#' (default is 1000 m). Automatically converted to the CRS unit of the DSM.
 #' @param refraction_factor Number, indicating the refraction factor.
 #' The refraction factor adjusts the effect of atmospheric refraction
 #' on the apparent curvature of the Earth. In most standard applications, a refraction factor
 #' of 0.13 is used, and so does this function. However, the appropriate refraction factor may
 #' vary depending on environmental conditions.
 #' @param method Character, The algorithm for computing a viewshed:
-#' "plane" and "los" (see details). "plane" is used as default.
+#' "plane", "los", and "view_tree" (see details). "plane" is used as default.
 #' @param parallel Logical, (default is FALSE) indicating if parallel computing
 #' should be used to compute viewsheds of multiview points. When it is TRUE,
 #' arguements 'raster' and 'plot' are ignored
@@ -37,21 +37,34 @@
 #' is returned.
 #'
 #'
-#' @details For method, "plane" is the reference plane algorithm introduced by
-#' Wang et al. (2000) and "los" is the line of sight algorithm (Franklin & Ray, 1994).
-#' The reference plane algorithm can be more time-efficient than the line of sight
-#' algorithm, whereas the accuracy of the line of sight is better.
-#'
-#' @seealso [fov_mask()] [visual_magnitude()]
-#'
-#' @references Franklin, W. R., & Ray, C. (1994, May).
-#' Higher isn’t necessarily better: Visibility algorithms and experiments.
-#' In Advances in GIS research: sixth international symposium on spatial
-#' data handling (Vol. 2, pp. 751-770). Edinburgh: Taylor & Francis.
-#'
-#' Wang, J., Robinson, G. J., & White, K. (2000).
-#' Generating viewsheds without using sightlines.
-#' Photogrammetric engineering and remote sensing, 66(1), 87-90.
+#’ @details For method, "plane" is the reference plane algorithm introduced by
+#’ Wang et al. (2000) and "los" is the line of sight algorithm (Franklin & Ray, 1994).
+#’ The reference plane algorithm can be more time-efficient than the line of sight
+#’ algorithm, whereas the accuracy of the line of sight is better.
+#’
+#’ "view_tree" is the view-tree algorithm (Wang et al. 2022). It converts the DEM
+#’ into a tree data structure (the view-tree) based on spatial occlusion relationships
+#’ among cells, then traverses the tree depth-first, propagating a minimum visible
+#’ slope (MVS) from parent to child nodes to determine visibility. The method achieves
+#’ precision comparable to "los" while being approximately 40% faster than R2-class
+#’ methods. Note that this is a pure-R implementation, so performance on very large
+#’ DEMs will be slower than the compiled "plane" and "los" methods.
+#’
+#’ @seealso [fov_mask()] [visual_magnitude()]
+#’
+#’ @references Franklin, W. R., & Ray, C. (1994, May).
+#’ Higher isn’t necessarily better: Visibility algorithms and experiments.
+#’ In Advances in GIS research: sixth international symposium on spatial
+#’ data handling (Vol. 2, pp. 751-770). Edinburgh: Taylor & Francis.
+#’
+#’ Wang, J., Robinson, G. J., & White, K. (2000).
+#’ Generating viewsheds without using sightlines.
+#’ Photogrammetric engineering and remote sensing, 66(1), 87-90.
+#’
+#’ Wang, Z., Xiong, L., Guo, Z., Zhang, W., & Tang, G. (2022).
+#’ A view-tree method to compute viewsheds from digital elevation models.
+#’ International Journal of Geographical Information Science.
+#’ https://doi.org/10.1080/13658816.2022.2094385
 #'
 #' @useDynLib viewscape
 #' @import pbmcapply
@@ -90,14 +103,11 @@ compute_viewshed <- function(dsm,
   } else if (missing(viewpoints)) {
     stop("viewpoint(s) is missing!")
   }
-  dsm_units <- sf::st_crs(dsm)$units
-  if(is.null(r) == TRUE){
-    if (dsm_units == "ft") {
-      r <- 3281
-    } else if (dsm_units == "m") {
-      r <- 1000
-    }
-  }
+  # Convert metre-based inputs to the DSM's native CRS unit (e.g. feet)
+  if (is.null(r)) r <- 1000          # default radius in metres
+  r                <- m_to_crs_units(r,                dsm)
+  offset_viewpoint <- m_to_crs_units(offset_viewpoint, dsm)
+  offset_height    <- m_to_crs_units(offset_height,    dsm)
   ext_dsm <- terra::ext(dsm)
   # if (dsm_units == "ft" && r > 3281) {
   #   r <- 3281
